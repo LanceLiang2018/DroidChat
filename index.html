@@ -8,7 +8,7 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="Cache-Control" content="no-siteapp">
   
-    <link rel="manifest" href="http://chat.henrize.kim:3000/manifest.json">
+<!--    <link rel="manifest" href="http://chat.henrize.kim:3000/manifest.json">-->
 <!--
     <link rel="stylesheet" href="files/style.css">
     <link id="scheme-link" rel="stylesheet" href="files/a.css">
@@ -20,12 +20,12 @@
 
     <script src="files/highlight.js"></script>
     <link id="highlight-link" rel="stylesheet" href="files/hybrid.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/2.0.0/remarkable.min.js"></script>
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/2.0.0/remarkable.min.js"></script>-->
     <script src="http://chat.henrize.kim:3000/vendor/remarkable/remarkable.min.js"></script>
   
     <title>Henrize 聊天室</title>
 <!--    <link rel="stylesheet" href="mdui/css/mdui.css">-->
-    <link rel="stylesheet" href="//cdnjs.loli.net/ajax/libs/mdui/0.4.3/css/mdui.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/mdui/0.4.3/css/mdui.min.css">
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -57,19 +57,23 @@
     }
     </style>
 </head>
-<body class="mdui-drawer-body-left mdui-appbar-with-toolbar mdui-loaded mdui-theme-primary-indigo mdui-theme-accent-pink">
+<body class="mdui-drawer-body-left mdui-appbar-with-toolbar mdui-loaded mdui-theme-primary-pink mdui-theme-accent-yellow mdui-theme-layout-dark">
 <header class="mdui-appbar mdui-appbar-fixed">
   <div class="mdui-toolbar mdui-color-theme">
     <span class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white"
       mdui-drawer="{target: '#main-drawer', swipe: true}"><i class="mdui-icon material-icons">menu</i></span>
 <!--    <a href="/" class="mdui-typo-headline mdui-hidden-xs">Henrize 聊天室</a>-->
-    <div class="mdui-tab mdui-tab-full-width" mdui-tab id="chat-tabs">
+    <div class="mdui-tab mdui-tab-centered" mdui-tab id="chat-tabs" style="width: 100%">
       
     </div>
     <div class="mdui-toolbar-spacer"></div>
-    <button class="mdui-btn mdui-btn-icon" mdui-dialog="{target: '#chat-new-room'}"><i class="mdui-icon material-icons">import_export</i></button>
+    <button class="mdui-btn mdui-btn-icon" mdui-dialog="{target: '#chat-new-room'}"><i class="mdui-icon material-icons">content_copy</i></button>
     <button class="mdui-btn mdui-btn-icon" mdui-menu="{target: '#chat-more_vert'}"><i class="mdui-icon material-icons">more_vert</i></button>
     <ul class="mdui-menu" id="chat-more_vert">
+      <li class="mdui-menu-item">
+        <a href="javascript:;" class="mdui-ripple">取消</a>
+      </li>
+      <li class="mdui-divider"></li>
       <li class="mdui-menu-item">
         <a href="javascript:;" mdui-dialog="{target: '#chat-new-room'}" class="mdui-ripple">新窗口</a>
       </li>
@@ -85,7 +89,8 @@
       </li>
       <li class="mdui-divider"></li>
       <li class="mdui-menu-item">
-        <a href="https://sm.ms/" target="_blank" class="mdui-ripple">图床</a>
+<!--        <a href="javascript:;" mdui-dialog="{target: '#dialog-imgbed'}" class="mdui-ripple">图床</a>-->
+        <a href="https://sm.ms"  target="_blank" class="mdui-ripple">图床</a>
       </li>
       <li class="mdui-divider"></li>
       <li class="mdui-menu-item">
@@ -117,7 +122,11 @@
       </div>
       <div class="mdui-collapse-item-body mdui-list">
         <a href="https://github.com/LanceLiang2018/lanceliang2018.github.io/tree/master/chat"
-           class="mdui-list-item mdui-ripple">关于:前端界面·改</a>
+           class="mdui-list-item mdui-ripple">本前端界面</a>
+      </div>
+      <div class="mdui-collapse-item-body mdui-list">
+        <a href="http://chat.henrize.kim:3000/"
+           class="mdui-list-item mdui-ripple">主站</a>
       </div>
     </div>
   </div>
@@ -145,6 +154,22 @@
     <p>2020/03/03</p>
   </div>
 </div>
+  
+<!--
+<div class="mdui-dialog" id="dialog-imgbed">
+  <div class="mdui-dialog-content">
+    <form enctype="multipart/form-data">
+      <input name="file" type="file" id="file"/>
+    </form>
+    <button onclick="imgbedUpload()" class="mdui-btn mdui-ripple">上传</button>
+    <div class="mdui-typo" id="imgbed-result"></div>
+  </div>
+  <div class="mdui-dialog-actions">
+    <button class="mdui-btn mdui-ripple" onclick="openNewRoom()">ok</button>
+  </div>
+    <iframe src="https://sm.ms/"></iframe>
+</div>
+-->
 
 <div class="mdui-dialog" id="chat-dialog-about">
   <div class="mdui-dialog-title">关于</div>
@@ -164,7 +189,7 @@
   </div>
 </div>
 
-  <div class="mdui-dialog" id="chat-new-room">
+<div class="mdui-dialog" id="chat-new-room">
   <div class="mdui-dialog-title">进入新的房间</div>
   <div class="mdui-dialog-content">
     <div class="mdui-textfield mdui-textfield-floating-label">
@@ -173,7 +198,7 @@
     </div>
   </div>
   <div class="mdui-dialog-actions">
-    <button class="mdui-btn mdui-ripple" onclick="openNewRoom()">ok</button>
+    <button class="mdui-btn mdui-ripple" onclick="openNewRoom()" mdui-dialog-confirm>ok</button>
   </div>
 </div>
 
@@ -182,6 +207,20 @@
     <div class="mdui-dialog-content mdui-typo">
       <div id="chat-sidebar-content">
         <p>这些设置只对新打开的窗口有效。</p>
+        <p>
+          <label class="mdui-checkbox">
+            <input type="checkbox" id="enter-send" checked=""/>
+              <i class="mdui-checkbox-icon"></i>
+              按下回车换行
+          </label>
+        </p>
+        <p>
+          <label class="mdui-checkbox">
+            <input type="checkbox" id="emote" checked=""/>
+              <i class="mdui-checkbox-icon"></i>
+              使用颜表情
+          </label>
+        </p>
         <p>
 <!--          <input id="sound-switch" type="checkbox">-->
 <!--          <label for="sound-switch">有人@我时播放提示音</label>-->
@@ -241,7 +280,7 @@
           <select id="highlight-selector" class="mdui-select" mdui-select><option value="agate">agate</option><option value="androidstudio">androidstudio</option><option value="atom-one-dark">atom-one-dark</option><option value="darcula" selected="selected">darcula</option><option value="github">github</option><option value="rainbow">rainbow</option><option value="tomorrow">tomorrow</option><option value="xcode">xcode</option><option value="zenburn">zenburn</option></select>
         <p></p>
         <p>
-<!--          <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="clear-messages">清空本页聊天记录</button>-->
+          <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="clear-messages">清空本页聊天记录</button>
         </p>
       </div>
     </div>
@@ -530,7 +569,7 @@
   </div>
 </div>
   
-<footer id="footer" style="position: fixed; bottom: 0; width: 100%; display:none">
+<footer id="footer" style="position: absolute; bottom: 0; width: 100%; display:none">
   <div class="container">
     <form id="chatform" class="message">
       <div class="mdui-textfield">
@@ -540,12 +579,27 @@
   </div>
 </footer>
 
+<!--
+<script type="application/javascript">
+  // Android 手机下, input 或 textarea 元素聚焦时, 主动滚一把
+  if (/Android/gi.test(navigator.userAgent)) {
+    window.addEventListener('resize', function () {
+      if (document.activeElement.tagName == 'INPUT' || document.activeElement.tagName == 'TEXTAREA') {
+          window.setTimeout(function () {
+          document.activeElement.scrollIntoViewIfNeeded();
+        }, 0);
+      }
+    })
+  }
+</script>
+-->
+
 <!--<script src="files/jquery.min.js"></script>-->
 <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 <!--    <script src="https://cdn-1254016670.cos-website.ap-chengdu.myqcloud.com/using/showdown.min.js"></script>-->
 <!--    <script src="https://cdn-1254016670.cos-website.ap-chengdu.myqcloud.com/using/cos-js-sdk-v5.js"></script>-->
 <!--<script src="mdui/js/mdui.min.js"></script>-->
-<script src="//cdnjs.loli.net/ajax/libs/mdui/0.4.3/js/mdui.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/mdui/0.4.3/js/mdui.min.js"></script>
 <script>var $$ = mdui.JQ;</script>
 <script>var $_ = $</script>
 <script src="files/client.js"></script>
@@ -561,9 +615,29 @@
   
   function tabShow(target) {
 //    console.log('tabshow', target);
-    tabNow = ('' + target).slice(('' + target).lastIndexOf('-')+1);
-    $$('.chat-frame').hide();
-    $$('#' + target).show();
+//    tabNow = ('' + target).slice(('' + target).lastIndexOf('-')+1);
+    tabNow = '' + target;
+    jQuery('.chat-frame').hide();
+    jQuery('.chat-tab').css('font-weight', '');
+    jQuery('#chat-frame-' + target).show();
+//    debugger;
+    jQuery('#chat-tab-' + target).removeClass('mdui-color-theme-accent');
+    jQuery('#chat-tab-' + target).css('font-weight', '600');
+    
+    frames = $('.chat-frame');
+    frames.find('chatinput').focus(false);
+    if (frames) {
+      for (i=0; i<frames.length; i++) {
+        frames[i].contentWindow.windowActive = false;
+      }
+    }
+    var subWindow = $('#chat-frame-' + target)[0];
+    if (subWindow) {
+      subWindow.contentWindow.unread = 0;
+      subWindow.contentWindow.windowActive = true;
+      if (subWindow.contentWindow.updateTitle)
+        subWindow.contentWindow.updateTitle();
+    }
   }
   
   function openNewRoom() {
@@ -571,7 +645,12 @@
       gtabs = new Array();
     }
     gtabs.push('' + frameCount);
-    new mdui.Dialog('#chat-new-room').close();
+    try {
+//      new mdui.Dialog('#chat-new-room').close();
+      dialogNewRoom.close();
+    } catch(e) {
+        console.log('chat-new-room close err', e);
+    }
     var room = $$('#chat-new-room-text').val();
 //    console.log('going to', room);
     var inst = new mdui.Tab('#chat-tabs');
@@ -579,15 +658,16 @@
     var tabs = $$('#chat-tabs');
     var target = 'chat-frame-' + frameCount;
     var target_tab = 'chat-tab-' + frameCount;
-    var mtab = $$('<a href="#' + target + '" class="mdui-ripple" onclick="tabShow(\'' + target + '\');" id="' + target_tab + '">' + room + '</a>');
-    var mframe = $$('<iframe src="core.html?' + room + '" frameborder="0" width="100%" seamless class="chat-frame" id="' + target + '"></iframe>');
+    var mtab = $$('<a href="#' + target + '" class="mdui-ripple chat-tab" onclick="tabShow(\'' + frameCount + '\');" id="' + target_tab + '">' + room + '</a>');
+    var mframe = $$('<iframe src="core.html?' + room + '&tabId=' + frameCount + '" frameborder="0" width="100%" seamless class="chat-frame" id="' + target + '"></iframe>');
     $$(tabs).append(mtab);
     $$(frames).append(mframe);
+    tabShow(frameCount);
     frameCount = frameCount + 1;
     
-    resize();
     mdui.mutation();
-    tabShow(target);
+    resize();
+    setTimeout(resize, 2000);
   }
   
   function closeRoom(tid) {
@@ -606,8 +686,8 @@
     var found = false;
     for (i=index; i<gtabs.length; i++) {
       if (gtabs[i] != undefined) {
-        var target2 = 'chat-frame-' + gtabs[i];
-        tabShow(target2);
+//        var target2 = 'chat-frame-' + gtabs[i];
+        tabShow(gtabs[i]);
         found = true;
         break;
       }
@@ -615,15 +695,16 @@
     if (!found) {
       for (i=index; i>=0; i--) {
         if (gtabs[i] != undefined) {
-          var target2 = 'chat-frame-' + gtabs[i];
-          tabShow(target2);
+//          var target2 = 'chat-frame-' + gtabs[i];
+          tabShow(gtabs[i]);
           found = true;
           break;
         }
       }
     }
     if (!found) {
-      new mdui.Dialog($$('#chat-new-room')).open();
+//      new mdui.Dialog($$('#chat-new-room')).open();
+      dialogNewRoom.open();
     }
     
 //    if (tid > 0) {
@@ -634,7 +715,31 @@
 //    }
   }
   
-  new mdui.Dialog($$('#chat-new-room')).open();
+  function imgbedUpload() {
+//    getToken('LanceLiang2018', '1352040930lxr').then(token => {
+//      uploadImage($('#file').get(0).files[0], token).then(url => {
+//        console.log(url);
+//        $('#imgbed-result').append($('<a href="' + url + '" target="_blank">图像链接</a>'));
+//        $('#imgbed-result').append($('<div class="mdui-textfield"><textarea class="mdui-textfield-input" type="text" autocomplete="off" autofocus="" value="![img](' + url + ')"></textarea></div>'));
+//      }).fail(function() {console.log('upload Failed');});
+//    }).fail(function() {console.log('getToken Failed')});
+//  }
+    uploadImage($_('#file').get(0).files[0], imgToken).then(url => {
+      console.log(url);
+      $('#imgbed-result').append($('<a href="' + url + '" target="_blank">图像链接</a>'));
+      $('#imgbed-result').append($('<div class="mdui-textfield"><textarea class="mdui-textfield-input" type="text" autocomplete="off" autofocus="" value="![img](' + url + ')"></textarea></div>'));
+    }).fail(function() {console.log('upload Failed');});
+  }
+  
+  dialogNewRoom = new mdui.Dialog('#chat-new-room', {
+      history: false
+  });
+//  setTimeout(function() {
+//    dialogNewRoom.open();
+//    console.log('Tryed');
+//  }, 2000);
+  dialogNewRoom.open();
+//  openNewRoom();
 </script>
 </body>
 </html>
