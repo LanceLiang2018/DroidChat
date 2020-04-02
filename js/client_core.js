@@ -1,3 +1,7 @@
+$ = jQuery;
+$$ = jQuery;
+//$_ = document.querySelector;
+
 function getCookieByArray(name){
  var cookies = document.cookie.split(';');
  var c;
@@ -11,9 +15,9 @@ function getCookieByArray(name){
 /**
  * 设置文档主题
  */
-var DEFAULT_PRIMARY = 'indigo';
-var DEFAULT_ACCENT = 'pink';
-var DEFAULT_LAYOUT = '';
+var DEFAULT_PRIMARY = 'pink';
+var DEFAULT_ACCENT = 'yellow';
+var DEFAULT_LAYOUT = 'dark';
 
 // 设置 cookie
 var setCookie = function (key, value) {
@@ -117,7 +121,7 @@ function getTheme() {
   setDocsTheme(theme);
 }
 
-getTheme();
+//getTheme();
 
 xiaoice = 'XiaoIce';
 
@@ -168,6 +172,7 @@ var imgHostWhitelist = [
 	'i.loli.net',
 	's1.ax1x.com',
 	'chat.henrize.kim',
+    'bed-1254016670.cos.ap-guangzhou.myqcloud.com'
 ];
 
 function getDomain(link) {
@@ -189,10 +194,10 @@ md.renderer.rules.image = function (tokens, idx, options) {
 		var alt = ' alt="' + (tokens[idx].alt ? Remarkable.utils.escapeHtml(Remarkable.utils.replaceEntities(Remarkable.utils.unescapeMd(tokens[idx].alt))) : '') + '"';
 		var suffix = options.xhtmlOut ? ' /' : '';
 		var scrollOnload = isAtBottom() ? ' onload="window.scrollTo(0, document.body.scrollHeight)"' : '';
-		return '<a href="' + src + '" rel="noreferrer"><img' + scrollOnload + imgSrc + alt + title + suffix + '></a>';
+		return '<a href="' + src + '" target="_blank" rel="noreferrer"><img' + scrollOnload + imgSrc + alt + title + suffix + '></a>';
 	}
 
-  return '<a href="' + src + '" rel="noreferrer">' + Remarkable.utils.escapeHtml(Remarkable.utils.replaceEntities(src)) + '</a>';
+  return '<a href="' + src + '" target="_blank" rel="noreferrer">' + Remarkable.utils.escapeHtml(Remarkable.utils.replaceEntities(src)) + '</a>';
 };
 
 md.renderer.rules.link_open = function (tokens, idx, options) {
@@ -211,7 +216,8 @@ md.renderer.rules.text = function(tokens, idx) {
 			if (match[0] !== '?') {
 				whiteSpace = match[0];
 			}
-			return whiteSpace + '<a href="' + channelLink + '">' + channelLink + '</a>';
+//			return whiteSpace + '<a href="' + channelLink + '" target="_blank">' + channelLink + '</a>';
+            return whiteSpace + '<a rel="noreferrer" onclick="return verifyLink(this)" href="' + channelLink + '">' + channelLink + '</a>';
 		});
 	}
 
@@ -223,10 +229,13 @@ md.use(remarkableKatex);
 function verifyLink(link) {
 	var linkHref = Remarkable.utils.escapeHtml(Remarkable.utils.replaceEntities(link.href));
 	if (linkHref !== link.innerHTML) {
-		return confirm('请确认这是您希望跳转的链接: ' + linkHref);
+//		return confirm('请确认这是您希望跳转的链接: ' + linkHref);
+//        self.window.location.href = linkHref;
+        window.parent.postMessage({ link: linkHref, tabId: tabId }, '*');
+        return false;
 	}
 
-	return true;
+	return false;
 }
 
 var verifyNickname = function (nick) {
@@ -238,17 +247,15 @@ var frontpage = [
 	"欢迎来到Henrize的聊天室，这是一个简洁轻小的聊天室网站。",
 	"**继续访问本网站则代表您完全同意[《Henrize的聊天室服务协议》](http://chat.henrize.kim:3000/agreement.html)**。",
 	"加入聊天室输入昵称即可进行聊天，还有[**更多功能**](http://chat.henrize.kim:3000/more.html)丰富聊天体验。",
-	"这里有一些常用的聊天室，欢迎加入：",
-	"闲聊休息室： ?lounge",
+	"想找一些人来聊天？欢迎加入[**公共聊天室**](?lounge)。",
 	"--------------------",
-	"站长邮箱：mail@to.henrize.kim",
-	"开源许可和制作人员：[版权页](http://chat.henrize.kim:3000/copyright.html)",
+	"[第三方程序](http://chat.henrize.kim:3000/third-party.html) [版权页](http://chat.henrize.kim:3000/copyright.html) [站长邮箱](mailto://mail@to.henrize.kim)",
 	"Hack.Chat & Henrize Chat Dev Team",
 	"2020/02/27",
 	"Have a nice chat!"
 ].join("\n");
 
-function $(query) {
+function $_(query) {
 	return document.querySelector(query);
 }
 
@@ -267,6 +274,15 @@ function localStorageSet(key, val) {
 var ws;
 var myNick = localStorageGet('my-nick') || '';
 var myChannel = window.location.search.replace(/^\?/, '');
+tabId = 0;
+if (myChannel.indexOf('&') != -1) {
+    var tail = myChannel.slice(myChannel.indexOf('&')+1, myChannel.length);
+    //debugger;
+    if (tail.startsWith('tabId=')) {
+        tabId = tail.slice(6, tail.length);
+    }
+    myChannel = myChannel.slice(0, myChannel.indexOf('&'));
+}
 var lastSent = [""];
 var lastSentPos = 0;
 
@@ -406,16 +422,39 @@ function notify(args) {
 
 function nicked(nick) {
     if (!nick)
-        myNick = $_('#chat-nick').val();
+        myNick = $('#chat-nick').val();
     else
         myNick = nick;
-    dialogNick.close();
+    if (dialogNick)
+        dialogNick.close();
     if (myNick) {
         localStorageSet('my-nick', myNick);
         send({ cmd: 'join', channel: _channel, nick: myNick });
     }
     wasConnected = true;
 }
+
+var browser = {
+    versions: function () {
+        var u = navigator.userAgent, app = navigator.appVersion;
+        return {         //移动终端浏览器版本信息
+            trident: u.indexOf('Trident') > -1, //IE内核
+            presto: u.indexOf('Presto') > -1, //opera内核
+            webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+            gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+            mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+            ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+            android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或uc浏览器
+            iPhone: u.indexOf('iPhone') > -1, //是否为iPhone或者QQHD浏览器
+            iPad: u.indexOf('iPad') > -1, //是否iPad
+            webApp: u.indexOf('Safari') == -1 //是否web应该程序，没有头部与底部
+        };
+    }(),
+    language: (navigator.browserLanguage || navigator.language).toLowerCase()
+}
+//————————————————
+//版权声明：本文为CSDN博主「niesiyuan000」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+//原文链接：https://blog.csdn.net/niesiyuan000/java/article/details/80010414
 
 function joined(channel, port) {
     ws = new WebSocket('ws://chat.henrize.kim:6060');
@@ -424,13 +463,36 @@ function joined(channel, port) {
 
     ws.onopen = function () {
         _channel = channel;
+        dialogNick = new mdui.Dialog('#chat-dialog-nick', {
+            history: false
+        });
         if (!wasConnected) {
             if (location.hash) {
                 myNick = location.hash.substr(1);
             } else {
-        //              myNick = prompt('请输入您的昵称：', myNick);
-              dialogNick = new mdui.Dialog('#chat-dialog-nick');
-              dialogNick.open();
+                if (localStorageGet('my-nick')) {
+                  $('#chat-nick').val(localStorageGet('my-nick'));
+                    $('#chat-nick').bind('keydown',function(event){
+                    if(event.keyCode == "13")    
+                        nicked();
+                    });
+                }
+                dialogNick.open();
+//                if (browser.versions.mobile) {//判断是否是移动设备打开。browser代码在下面
+//                    if (localStorageGet('my-nick')) {
+//                      $('#chat-nick').val(localStorageGet('my-nick'));
+//                        $('#chat-nick').bind('keydown',function(event){
+//                        if(event.keyCode == "13")    
+//                            nicked();
+//                        });
+//                    }
+//                    dialogNick.open();
+//                }else{
+//                    //否则就是PC浏览器打开
+//                    myNick = prompt('请输入您的昵称：', myNick);
+//                    nicked(myNick);
+//                }
+
           }
         }
     }
@@ -467,6 +529,10 @@ var COMMANDS = {
 		if (ignoredUsers.indexOf(args.nick) >= 0) {
 			return;
 		}
+        if (args.nick == myNick) {
+            unread = 0;
+            updateTitle();
+        }
 		pushMessage(args);
 	},
 
@@ -497,7 +563,7 @@ var COMMANDS = {
 
 		userAdd(nick);
 
-		if ($('#joined-left').checked) {
+		if ($('#joined-left').is(":checked")) {
 			pushMessage({ nick: '*', text: nick + " 加入聊天室" });
 		}
 	},
@@ -507,7 +573,7 @@ var COMMANDS = {
 
 		userRemove(nick);
 
-		if ($('#joined-left').checked) {
+		if ($('#joined-left').is(":checked")) {
 			pushMessage({ nick: '*', text: nick + " 退出聊天室" });
 		}
 	}
@@ -543,14 +609,7 @@ function pushMessage(args) {
 	// Nickname
 	var nickSpanEl = document.createElement('span');
 	nickSpanEl.classList.add('nick');
-	messageEl.appendChild(nickSpanEl);
-
-	if (args.trip) {
-		var tripEl = document.createElement('span');
-		tripEl.textContent = args.trip + " ";
-		tripEl.classList.add('trip');
-		nickSpanEl.appendChild(tripEl);
-	}
+	messageEl.append(nickSpanEl);
 
 	if (args.nick) {
 		var nickLinkEl = document.createElement('a');
@@ -563,7 +622,14 @@ function pushMessage(args) {
 
 		var date = new Date(args.time || Date.now());
 		nickLinkEl.title = date.toLocaleString();
-		nickSpanEl.appendChild(nickLinkEl);
+		nickSpanEl.append(nickLinkEl);
+	}
+    
+    if (args.trip) {
+		var tripEl = document.createElement('span');
+		tripEl.textContent = ' ' + args.trip;
+		tripEl.classList.add('trip');
+		nickSpanEl.append(tripEl);
 	}
 
 	// Text
@@ -571,25 +637,26 @@ function pushMessage(args) {
 	textEl.classList.add('text');
 	textEl.innerHTML = md.render(args.text);
 
-	messageEl.appendChild(textEl);
+	messageEl.append(textEl);
 
 	// Scroll to bottom
 	var atBottom = isAtBottom();
-	$('#messages').appendChild(messageEl);
+	$('#messages').append(messageEl);
     //mdui.mutation($('#messages'))
 	if (atBottom) {
 		window.scrollTo(0, document.body.scrollHeight);
 	}
 
-	unread += 1;
+    if (args.nick != myNick && !$('#chatinput').is(":focus"))
+	   unread += 1;
 	updateTitle();
   
     // 修改一下主题
-    $$('.trip').attr('class', 'mdui-text-color-theme');
+    $$('.trip').attr('class', 'mdui-text-color-grey');
 }
 
 function insertAtCursor(text) {
-	var input = $('#chatinput');
+	var input = document.querySelector('#chatinput');
 	var start = input.selectionStart || 0;
 	var before = input.value.substr(0, start);
 	var after = input.value.substr(start);
@@ -607,18 +674,24 @@ function send(data) {
 	}
 }
 
-var windowActive = true;
+var windowActive = false;
 var unread = 0;
 
-window.onfocus = function () {
-	windowActive = true;
-
+function myOnFocus() {
+//    windowActive = true;
 	updateTitle();
 }
 
-window.onblur = function () {
-	windowActive = false;
+function myOnBlur() {
+//    windowActive = false;
+	updateTitle();
 }
+
+window.onfocus = myOnFocus;
+window.onblur = myOnBlur;
+
+//document.contentWindow.addEventListener("focus",myOnFocus,false);
+//document.contentWindow.addEventListener("blur",myOnBlur,false);
 
 window.onscroll = function () {
 	if (isAtBottom()) {
@@ -637,9 +710,9 @@ function updateTitle() {
 
 	var title;
 	if (myChannel) {
-		title = myChannel + " - Henrize聊天室";
+		title = myChannel;
 	} else {
-		title = "Henrize聊天网站";
+		title = "main";
 	}
 
 	if (unread > 0) {
@@ -647,11 +720,14 @@ function updateTitle() {
 	}
 
 	document.title = title;
+    // 通知父窗口改变
+    window.parent.postMessage({ title: title, tabId: tabId }, '*');
 }
 
-//$('#footer').onclick = function () {
-//	$('#chatinput').focus();
-//}
+$('#footer').onclick = function () {
+	$('#chatinput').focus();
+    window.scrollTo(0, document.body.scrollHeight);
+}
 
 function foo(data) {
 //    data = JSON.parse(d);
@@ -660,14 +736,14 @@ function foo(data) {
 //        console.log('tosend:', msg);
         send({ cmd: 'chat', text: msg });
     }
-    msg = '@' + xiaoice + '说:' + data['data'];
+    msg = '@' + xiaoice + '说:' + $(data['data']).text();
 //    console.log('tosend:', msg);
     send({ cmd: 'chat', text: msg });
 }
 
 function callXiaoice(text) {
     text.replace(new RegExp('@' + xiaoice,'g'),"b");
-    $_.ajax({
+    $.ajax({
         url: 'http://wenku8.herokuapp.com/chat/' + text + '?callback=foo',
         dataType :'JSONP',
         jsonp: "foo",
@@ -679,27 +755,28 @@ function callXiaoice(text) {
     })
 }
 
-$('#chatinput').onkeydown = function (e) {
-	if (e.keyCode == 13 /* ENTER */ && !e.shiftKey) {
+function submitMessage(text) {
+  // Submit message
+  if (text != '') {
+      $('#chatinput').val('');
+      //这里加上一点处理
+      send({ cmd: 'chat', text: text });
+      if (text.indexOf('@' + xiaoice) != -1) {
+          callXiaoice(text);
+      }
+      lastSent[0] = text;
+      lastSent.unshift("");
+      lastSentPos = 0;
+      updateInputSize();
+  }
+}
+
+$('#chatinput').keydown(function (e) {
+	if ((e.keyCode == 13 /* ENTER */ && !e.shiftKey && !enterSend) || 
+        (enterSend && (e.keyCode == 13 && e.ctrlKey))) {
 		e.preventDefault();
-
-		// Submit message
-		if (e.target.value != '') {
-			var text = e.target.value;
-			e.target.value = '';
-
-            //这里加上一点处理
-			send({ cmd: 'chat', text: text });
-            if (text.indexOf('@' + xiaoice) != -1) {
-                callXiaoice(text);
-            }
-
-			lastSent[0] = text;
-			lastSent.unshift("");
-			lastSentPos = 0;
-
-			updateInputSize();
-		}
+        submitMessage(e.target.value);
+		
 	} else if (e.keyCode == 38 /* UP */) {
 		// Restore previous sent messages
 		if (e.target.selectionStart === 0 && lastSentPos < lastSent.length - 1) {
@@ -770,113 +847,33 @@ $('#chatinput').onkeydown = function (e) {
 			insertAtCursor('\t');
 		}
 	}
-}
+});
 
 function updateInputSize() {
 	var atBottom = isAtBottom();
 
-	var input = $('#chatinput');
-	input.style.height = 0;
+	var input = document.querySelector('#chatinput');
+    input.style.height = 0;
 	input.style.height = input.scrollHeight + 'px';
-	document.body.style.marginBottom = $('#footer').offsetHeight + 'px';
+	document.body.style.marginBottom = document.querySelector('#footer').offsetHeight + 'px';
 
 	if (atBottom) {
 		window.scrollTo(0, document.body.scrollHeight);
 	}
 }
 
-$('#chatinput').oninput = function () {
+document.querySelector('#chatinput').onfocus = function () {
+    unread = 0;
+    updateTitle();
+}
+
+document.querySelector('#chatinput').oninput = function () {
+    unread = 0;
+    updateTitle();
 	updateInputSize();
 }
 
 updateInputSize();
-
-/* sidebar */
-
-//$('#sidebar').onmouseenter = $('#sidebar').ontouchstart = function (e) {
-//	$('#sidebar-content').classList.remove('hidden');
-//	$('#sidebar').classList.add('expand');
-//	e.stopPropagation();
-//}
-//
-//$('#sidebar').onmouseleave = document.ontouchstart = function (event) {
-//	var e = event.toElement || event.relatedTarget;
-//	try {
-//		if (e.parentNode == this || e == this) {
-//	     return;
-//	  }
-//	} catch (e) { return; }
-//
-//	if (!$('#pin-sidebar').checked) {
-//		$('#sidebar-content').classList.add('hidden');
-//		$('#sidebar').classList.remove('expand');
-//	}
-//}
-
-$('#clear-messages').onclick = function () {
-	// Delete children elements
-	var messages = $('#messages');
-	messages.innerHTML = '';
-}
-
-// Restore settings from localStorage
-
-//if (localStorageGet('pin-sidebar') == 'true') {
-//	$('#pin-sidebar').checked = true;
-//	//$('#sidebar-content').classList.remove('hidden');
-//}
-
-if (localStorageGet('joined-left') == 'false') {
-	$('#joined-left').checked = false;
-}
-
-if (localStorageGet('parse-latex') == 'false') {
-	$('#parse-latex').checked = false;
-	md.inline.ruler.disable([ 'katex' ]);
-	md.block.ruler.disable([ 'katex' ]);
-}
-
-//$('#pin-sidebar').onchange = function (e) {
-//	localStorageSet('pin-sidebar', !!e.target.checked);
-//}
-//
-$('#joined-left').onchange = function (e) {
-	localStorageSet('joined-left', !!e.target.checked);
-}
-
-$('#parse-latex').onchange = function (e) {
-	var enabled = !!e.target.checked;
-	localStorageSet('parse-latex', enabled);
-	if (enabled) {
-		md.inline.ruler.enable([ 'katex' ]);
-		md.block.ruler.enable([ 'katex' ]);
-	} else {
-		md.inline.ruler.disable([ 'katex' ]);
-		md.block.ruler.disable([ 'katex' ]);
-	}
-}
-
-if (localStorageGet('syntax-highlight') == 'false') {
-	$('#syntax-highlight').checked = false;
-	markdownOptions.doHighlight = false;
-}
-
-$('#syntax-highlight').onchange = function (e) {
-	var enabled = !!e.target.checked;
-	localStorageSet('syntax-highlight', enabled);
-	markdownOptions.doHighlight = enabled;
-}
-
-if (localStorageGet('allow-imgur') == 'false') {
-	$('#allow-imgur').checked = false;
-	allowImages = false;
-}
-
-$('#allow-imgur').onchange = function (e) {
-	var enabled = !!e.target.checked;
-	localStorageSet('allow-imgur', enabled);
-	allowImages = enabled;
-}
 
 // User list
 var onlineUsers = [];
@@ -891,14 +888,14 @@ function userAdd(nick) {
 	}
 
 	var userLi = document.createElement('li');
-	userLi.appendChild(user);
-	$('#users').appendChild(userLi);
+	userLi.append(user);
+	$('#users').append(userLi);
 	onlineUsers.push(nick);
     mdui.mutation();
 }
 
 function userRemove(nick) {
-	var users = $('#users');
+	var users = document.querySelector('#users');
 	var children = users.children;
 
 	for (var i = 0; i < children.length; i++) {
@@ -915,7 +912,7 @@ function userRemove(nick) {
 }
 
 function usersClear() {
-	var users = $('#users');
+	var users = document.querySelector('#users');
 
 	while (users.firstChild) {
 		users.removeChild(users.firstChild);
@@ -932,99 +929,186 @@ function userIgnore(nick) {
 	ignoredUsers.push(nick);
 }
 
-/* color scheme switcher */
+function updateConfig() {
+    if (localStorageGet('joined-left') == 'false') {
+        $_('#joined-left').checked = false;
+    }
 
-var schemes = [
-	'安卓黑',
-	'默认黑',
-	'夜空黑',
-	'终端黑',
-	'初恋粉',
-	'安卓白',
-	'粉笔白',
-	'石灰白',
-	'寒夜蓝',
-	'口罩蓝',
-	'流行蓝',
-	'天依蓝',
-	'油漆蓝',
-	'荒漠黄',
-	'代码灰',
-	'球场绿',
-	'荧光绿',
-	'芬达橙',
-	'匿名版'
-];
+    if (localStorageGet('parse-latex') == 'false') {
+        $_('#parse-latex').checked = false;
+        md.inline.ruler.disable([ 'katex' ]);
+        md.block.ruler.disable([ 'katex' ]);
+    }
 
-var highlights = [
-	'agate',
-	'androidstudio',
-	'atom-one-dark',
-	'darcula',
-	'github',
-	'rainbow',
-	'tomorrow',
-	'xcode',
-	'zenburn'
-]
+    if (localStorageGet('syntax-highlight') == 'false') {
+        $('#syntax-highlight').attr('checked', false);
+        markdownOptions.doHighlight = false;
+    }
 
-var currentScheme = 'atelier-dune';
-var currentHighlight = 'darcula';
+    $_('#syntax-highlight').onchange = function (e) {
+        var enabled = !!e.target.checked;
+        localStorageSet('syntax-highlight', enabled);
+        markdownOptions.doHighlight = enabled;
+    }
 
-function setScheme(scheme) {
-	currentScheme = scheme;
-	$('#scheme-link').href = "schemes/" + scheme + ".css";
-	localStorageSet('scheme', scheme);
+    if (localStorageGet('allow-imgur') == 'false') {
+        $('#allow-imgur').attr('checked', false);
+        allowImages = false;
+    }
+
+    $_('#allow-imgur').onchange = function (e) {
+        var enabled = !!e.target.checked;
+        localStorageSet('allow-imgur', enabled);
+        allowImages = enabled;
+    }
+
+
+    /* color scheme switcher */
+
+    var schemes = [
+        '安卓黑',
+        '默认黑',
+        '夜空黑',
+        '终端黑',
+        '初恋粉',
+        '安卓白',
+        '粉笔白',
+        '石灰白',
+        '寒夜蓝',
+        '口罩蓝',
+        '流行蓝',
+        '天依蓝',
+        '油漆蓝',
+        '荒漠黄',
+        '代码灰',
+        '球场绿',
+        '荧光绿',
+        '芬达橙',
+        '匿名版'
+    ];
+
+    var highlights = [
+        'agate',
+        'androidstudio',
+        'atom-one-dark',
+        'darcula',
+        'github',
+        'rainbow',
+        'tomorrow',
+        'xcode',
+        'zenburn'
+    ]
+
+    var currentScheme = 'atelier-dune';
+    var currentHighlight = 'darcula';
+
+    function setScheme(scheme) {
+        currentScheme = scheme;
+        document.querySelector('#scheme-link').href = "schemes/" + scheme + ".css";
+        localStorageSet('scheme', scheme);
+    }
+
+    function setHighlight(scheme) {
+        currentHighlight = scheme;
+        document.querySelector('#highlight-link').href = "vendor/hljs/styles/" + scheme + ".min.css";
+        localStorageSet('highlight', scheme);
+    }
+
+    // Add scheme options to dropdown selector
+    schemes.forEach(function (scheme) {
+        var option = document.createElement('option');
+        option.textContent = scheme;
+        option.value = scheme;
+        document.querySelector('#scheme-selector').append(option);
+    });
+
+    highlights.forEach(function (scheme) {
+        var option = document.createElement('option');
+        option.textContent = scheme;
+        option.value = scheme;
+        $('#highlight-selector').append(option);
+    });
+
+    document.querySelector('#scheme-selector').onchange = function (e) {
+        setScheme(e.target.value);
+    }
+
+    document.querySelector('#highlight-selector').onchange = function (e) {
+        setHighlight(e.target.value);
+    }
+
+    // Load sidebar configaration values from local storage if available
+    if (localStorageGet('scheme')) {
+        setScheme(localStorageGet('scheme'));
+    }
+
+    if (localStorageGet('highlight')) {
+        setHighlight(localStorageGet('highlight'));
+    }
+
+    document.querySelector('#scheme-selector').value = currentScheme;
+    document.querySelector('#highlight-selector').value = currentHighlight;
+
+    if (!localStorageGet('enter-send')) {
+      // 默认打钩
+      localStorageSet('enter-send', true);
+    }
+    if (!localStorageGet('emote')) {
+      // 默认打钩
+      localStorageSet('emote', true);
+    }
+
+    enterSend = false;
+    if (localStorageGet('enter-send') == 'false') {
+      $('#enter-send').hide();
+    } else {
+      $('#enter-send').show();
+      enterSend = true;
+    }
+
+    if (localStorageGet('emote') == 'false') {
+      $('#emote').hide();
+      $('.mdui-select').hide();
+//      $('#emote').remove();
+    } else {
+//      $('#emote').show();
+      $('.mdui-select').show();
+      $('#emote').hide();
+    }
+    getTheme();
 }
-
-function setHighlight(scheme) {
-	currentHighlight = scheme;
-	$('#highlight-link').href = "vendor/hljs/styles/" + scheme + ".min.css";
-	localStorageSet('highlight', scheme);
-}
-
-// Add scheme options to dropdown selector
-schemes.forEach(function (scheme) {
-	var option = document.createElement('option');
-	option.textContent = scheme;
-	option.value = scheme;
-	$('#scheme-selector').appendChild(option);
-});
-
-highlights.forEach(function (scheme) {
-	var option = document.createElement('option');
-	option.textContent = scheme;
-	option.value = scheme;
-	$('#highlight-selector').appendChild(option);
-});
-
-$('#scheme-selector').onchange = function (e) {
-	setScheme(e.target.value);
-}
-
-$('#highlight-selector').onchange = function (e) {
-	setHighlight(e.target.value);
-}
-
-// Load sidebar configaration values from local storage if available
-if (localStorageGet('scheme')) {
-	setScheme(localStorageGet('scheme'));
-}
-
-if (localStorageGet('highlight')) {
-	setHighlight(localStorageGet('highlight'));
-}
-
-$('#scheme-selector').value = currentScheme;
-$('#highlight-selector').value = currentHighlight;
 
 /* main */
+updateConfig();
 
 if (myChannel == '') {
 	pushMessage({ text: frontpage });
-//	$('#footer').classList.add('hidden');
-//	$('#sidebar').classList.add('hidden');
-    $$('#footer').hide();
+    $('#footer').hide();
 } else {
 	join(myChannel);
+}
+
+function downloadFile(filename, text) {
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', filename);
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    } else {
+        pom.click();
+    }
+}
+
+function downloadMessages() {
+    var messages = $('#messages');
+    var text = '';
+    for (var i=0; i<messages.children().length; i++) {
+        var child = $(messages.children()[i]);
+        text = text + $('.nick', child).text() + '\r\n' + $('.text', child).text() + '' + '\r\n\r\n';
+    }
+//    var text = messages.text();
+    downloadFile('' + myNick + ' in ' + myChannel + ' - ' + new Date() + '.txt', text);
+//    console.log(text);
 }
