@@ -243,16 +243,35 @@ var verifyNickname = function (nick) {
 }
 
 var frontpage = [
-	"![Henrize Chat](http://chat.henrize.kim:3000/imgs/HC_Banner.png)",
-	"欢迎来到Henrize的聊天室，这是一个简洁轻小的聊天室网站。",
-	"**继续访问本网站则代表您完全同意[《Henrize的聊天室服务协议》](http://chat.henrize.kim:3000/agreement.html)**。",
-	"加入聊天室输入昵称即可进行聊天，还有[**更多功能**](http://chat.henrize.kim:3000/more.html)丰富聊天体验。",
-	"想找一些人来聊天？欢迎加入[**公共聊天室**](?lounge)。",
-	"--------------------",
-	"[第三方程序](http://chat.henrize.kim:3000/third-party.html) [版权页](http://chat.henrize.kim:3000/copyright.html) [站长邮箱](mailto://mail@to.henrize.kim)",
-	"Hack.Chat & Henrize Chat Dev Team",
-	"2020/02/27",
-	"Have a nice chat!"
+	"```",
+	" _           _         _       _   ",
+	"| |_ ___ ___| |_   ___| |_ ___| |_ ",
+	"|   |_ ||  _| '_| |  _|   |_ ||  _|",
+	"|_|_|__/|___|_,_|.|___|_|_|__/|_|  ",
+	"                                   ",
+	"```",
+	"---",
+	"Welcome to hack.chat, a minimal, distraction-free chat application.",
+	"Channels are created, joined and shared with the url, create your own channel by changing the text after the question mark.",
+	"If you wanted your channel name to be 'your-channel': ?your-channel",
+	"There are no channel lists, so a secret channel name can be used for private discussions.",
+	"---",
+	"Here are some pre-made channels you can join:",
+	"?lounge ?meta ?math ?physics ?chemistry ?technology ?programming ?games ?banana ?chinese",
+	"And here's a random one generated just for you: ?" + Math.random().toString(36).substr(2, 8),
+	"---",
+	"Formatting:",
+	"This client includes a full Markdown engine, use \\`\\`\\`fencing\\`\\`\\` to preserve whitespace.",
+	"Surround LaTeX with a dollar sign for inline style $\\zeta(2) = \\pi^2/6$, and two dollars for display. $$\\int_0^1 \\int_0^1 \\frac{1}{1-xy} dx dy = \\frac{\\pi^2}{6}$$",
+	"For syntax highlight, wrap the code like: \\`\\`\\`<language> <the code>\\`\\`\\` where <language> is any known programming language.",
+	"---",
+	"Current Github: https://github.com/hack-chat",
+	"Legacy GitHub: https://github.com/AndrewBelt/hack.chat",
+	"Bots, Android clients, desktop clients, browser extensions, docker images, programming libraries, server modules and more:",
+	"https://github.com/hack-chat/3rd-party-software-list",
+	"---",
+	"Server and web client released under the WTFPL and MIT open source license.",
+	"No message history is retained on the hack.chat server."
 ].join("\n");
 
 function $_(query) {
@@ -303,7 +322,7 @@ function RequestNotifyPermission() {
 						pushMessage({
 							cmd: "chat",
 							nick: "*",
-							text: "浏览器提示启动成功",
+							text: "Browser prompt start successful",
 							time: null
 						});
 						notifyPermissionExplained = 1;
@@ -314,7 +333,7 @@ function RequestNotifyPermission() {
 						pushMessage({
 							cmd: "chat",
 							nick: "*",
-							text: "浏览器提示启动被拒绝，请检查您的站点权限设置。",
+							text: "The browser prompt startup is denied. Please check your site permission settings.",
 							time: null
 						});
 						notifyPermissionExplained = -1;
@@ -327,10 +346,10 @@ function RequestNotifyPermission() {
 		pushMessage({
 			cmd: "chat",
 			nick: "*",
-			text: "无法进行通知。",
+			text: "Unable to notify.",
 			time: null
 		});
-		console.error("在试图通知的时候出现错误，可能是您的浏览器不支持此操作。\nDetails:")
+		console.error("An error occurred while trying to notify, possibly because your browser does not support this operation.\nDetails:")
 		console.error(error)
 		return false;
 	}
@@ -379,7 +398,7 @@ if (notifySetting === "true" || notifySetting === true) {
 function spawnNotification(title, body) {
 	// Let's check if the browser supports notifications
 	if (!("Notification" in window)) {
-		console.error("您的浏览器不支持浏览器通知。");
+		console.error("Your browser does not support browser notifications.");
 	} else if (Notification.permission === "granted") { // Check if notification permissions are already given
 		// If it's okay let's create a notification
 		var options = {
@@ -414,7 +433,7 @@ function notify(args) {
 		var soundPromise = document.getElementById("notify-sound").play();
 		if (soundPromise) {
 			soundPromise.catch(function (error) {
-				console.error("播放声音时出现故障：\n" + error);
+				console.error("There was a problem playing the sound:\n" + error);
 			});
 		}
 	}
@@ -457,7 +476,8 @@ var browser = {
 //原文链接：https://blog.csdn.net/niesiyuan000/java/article/details/80010414
 
 function joined(channel, port) {
-    ws = new WebSocket('ws://chat.henrize.kim:6060');
+//    ws = new WebSocket('ws://chat.henrize.kim:6060');
+    ws = new WebSocket('wss://hack.chat/chat-ws');
 
     var wasConnected = false;
 
@@ -499,7 +519,7 @@ function joined(channel, port) {
 
     ws.onclose = function () {
       if (wasConnected) {
-          pushMessage({ nick: '!', text: "与服务器的连接已经断开，正在尝试重新连接……" });
+          pushMessage({ nick: '!', text: "The connection to the server has been disconnected, trying to reconnect..." });
       }
 
       window.setTimeout(function () {
@@ -555,7 +575,7 @@ var COMMANDS = {
 			userAdd(nick);
 		});
 
-		pushMessage({ nick: '*', text: "欢迎加入聊天室！请保证您已经阅读并同意了[**服务协议**](http://chat.henrize.kim:3000/agreement.html)。\n如果您所在的聊天室没有在线的用户，可以尝试加入聊天室 ?lounge\n在线的用户: " + nicks.join(", ") })
+		pushMessage({ nick: '*', text: "Welcome! If nobody in, plz try ?lounge\nUsers online: " + nicks.join(", ") })
 	},
 
 	onlineAdd: function (args) {
@@ -564,7 +584,7 @@ var COMMANDS = {
 		userAdd(nick);
 
 		if ($('#joined-left').is(":checked")) {
-			pushMessage({ nick: '*', text: nick + " 加入聊天室" });
+			pushMessage({ nick: '*', text: nick + " joined" });
 		}
 	},
 
@@ -574,7 +594,7 @@ var COMMANDS = {
 		userRemove(nick);
 
 		if ($('#joined-left').is(":checked")) {
-			pushMessage({ nick: '*', text: nick + " 退出聊天室" });
+			pushMessage({ nick: '*', text: nick + " left" });
 		}
 	}
 }
@@ -732,11 +752,11 @@ $('#footer').onclick = function () {
 function foo(data) {
 //    data = JSON.parse(d);
     if (data['code'] != 0) {
-        msg = '@' + xiaoice + '出现故障:' + data['other'];
+        msg = '@' + xiaoice + 'Error: ' + data['other'];
 //        console.log('tosend:', msg);
         send({ cmd: 'chat', text: msg });
     }
-    msg = '@' + xiaoice + '说:' + $(data['data']).text();
+    msg = '@' + xiaoice + 'Says: ' + $(data['data']).text();
 //    console.log('tosend:', msg);
     send({ cmd: 'chat', text: msg });
 }

@@ -145,14 +145,14 @@ function readfile(input, callback) {
 //        console.log(xmlDoc.xml);
         uploadImage(xmlDoc.xml, filename, callback);
     } else {   
-        alert('读取文件错误');   
+        alert('Error reading file');   
     }   
 }
 
 function figurebedUpload() {
     $('.btn-copy').hide();
     if (!$('#file').get(0).files[0]) {
-        mdui.snackbar('请先选择文件');
+        mdui.snackbar('Please select a file first');
         return;
     }
     $('#figurebed-result').empty();
@@ -169,7 +169,7 @@ function figurebedUpload() {
         }
         url = encodeURI(url);
         console.log(url);
-        $('#figurebed-result').append($('<a href="' + url + '" target="_blank">图像链接</a>'));
+        $('#figurebed-result').append($('<a href="' + url + '" target="_blank">Image link</a>'));
         var tmpText = $('<div class="mdui-textfield"><textarea id="bed-result" class="mdui-textfield-input" type="text" autocomplete="off" autofocus=""></textarea></div>');
         $('.mdui-textfield-input', tmpText).val('![img](' + url + ')');
         $('#figurebed-result').append(tmpText);
@@ -181,10 +181,10 @@ function figurebedUpload() {
 $(document).ready(function(){  
     var clipboard = new ClipboardJS('.btn-copy');
     clipboard.on('success', function(e) {
-        mdui.snackbar('复制成功');
+        mdui.snackbar('Copy success');
     });
     clipboard.on('error', function(e) {
-        mdui.snackbar('复制失败');
+        mdui.snackbar('Copy failue');
     });
 });
   

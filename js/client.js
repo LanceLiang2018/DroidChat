@@ -229,7 +229,7 @@ md.use(remarkableKatex);
 function verifyLink(link) {
 	var linkHref = Remarkable.utils.escapeHtml(Remarkable.utils.replaceEntities(link.href));
 	if (linkHref !== link.innerHTML) {
-		return confirm('请确认这是您希望跳转的链接: ' + linkHref);
+		return confirm('Please confirm that this is the link you want to jump to: ' + linkHref);
 	}
 
 	return true;
@@ -240,16 +240,35 @@ var verifyNickname = function (nick) {
 }
 
 var frontpage = [
-	"![Henrize Chat](http://chat.henrize.kim:3000/imgs/HC_Banner.png)",
-	"欢迎来到Henrize的聊天室，这是一个简洁轻小的聊天室网站。",
-	"**继续访问本网站则代表您完全同意[《Henrize的聊天室服务协议》](http://chat.henrize.kim:3000/agreement.html)**。",
-	"加入聊天室输入昵称即可进行聊天，还有[**更多功能**](http://chat.henrize.kim:3000/more.html)丰富聊天体验。",
-	"想找一些人来聊天？欢迎加入[**公共聊天室**](/?lounge)。",
-	"--------------------",
-	"[第三方程序](http://chat.henrize.kim:3000/third-party.html) [版权页](http://chat.henrize.kim:3000/copyright.html) [站长邮箱](mailto://mail@to.henrize.kim)",
-	"Hack.Chat & Henrize Chat Dev Team",
-	"2020/02/27",
-	"Have a nice chat!"
+	"```",
+	" _           _         _       _   ",
+	"| |_ ___ ___| |_   ___| |_ ___| |_ ",
+	"|   |_ ||  _| '_| |  _|   |_ ||  _|",
+	"|_|_|__/|___|_,_|.|___|_|_|__/|_|  ",
+	"                                   ",
+	"```",
+	"---",
+	"Welcome to hack.chat, a minimal, distraction-free chat application.",
+	"Channels are created, joined and shared with the url, create your own channel by changing the text after the question mark.",
+	"If you wanted your channel name to be 'your-channel': https://hack.chat/?your-channel",
+	"There are no channel lists, so a secret channel name can be used for private discussions.",
+	"---",
+	"Here are some pre-made channels you can join:",
+	"?lounge ?meta ?math ?physics ?chemistry ?technology ?programming ?games ?banana ?chinese",
+	"And here's a random one generated just for you: ?" + Math.random().toString(36).substr(2, 8),
+	"---",
+	"Formatting:",
+	"This client includes a full Markdown engine, use \\`\\`\\`fencing\\`\\`\\` to preserve whitespace.",
+	"Surround LaTeX with a dollar sign for inline style $\\zeta(2) = \\pi^2/6$, and two dollars for display. $$\\int_0^1 \\int_0^1 \\frac{1}{1-xy} dx dy = \\frac{\\pi^2}{6}$$",
+	"For syntax highlight, wrap the code like: \\`\\`\\`<language> <the code>\\`\\`\\` where <language> is any known programming language.",
+	"---",
+	"Current Github: https://github.com/hack-chat",
+	"Legacy GitHub: https://github.com/AndrewBelt/hack.chat",
+	"Bots, Android clients, desktop clients, browser extensions, docker images, programming libraries, server modules and more:",
+	"https://github.com/hack-chat/3rd-party-software-list",
+	"---",
+	"Server and web client released under the WTFPL and MIT open source license.",
+	"No message history is retained on the hack.chat server."
 ].join("\n");
 
 function $_(query) {
@@ -294,7 +313,7 @@ function updateConfig() {
     function spawnNotification(title, body) {
         // Let's check if the browser supports notifications
         if (!("Notification" in window)) {
-            console.error("您的浏览器不支持浏览器通知。");
+            console.error("Your browser does not support browser notifications.");
         } else if (Notification.permission === "granted") { // Check if notification permissions are already given
             // If it's okay let's create a notification
             var options = {
@@ -329,7 +348,7 @@ function updateConfig() {
             var soundPromise = document.getElementById("notify-sound").play();
             if (soundPromise) {
                 soundPromise.catch(function (error) {
-                    console.error("播放声音时出现故障：\n" + error);
+                    console.error("There was a problem playing the sound:\n" + error);
                 });
             }
         }
@@ -574,7 +593,7 @@ function uploadImage(data, filename, callback) {
                 if (r.code == 'invalid_source') {
                     callback({
                         'success': false,
-                        'message': '图片转化错误(' + r.message + ')，返回cos_url',
+                        'message': 'Image conversion error(' + r.message + '), using cos_url',
                         'cos_url': 'http://bed-1254016670.cos.ap-guangzhou.myqcloud.com/imgs/' + filename
                     });
                 }
@@ -587,7 +606,7 @@ function uploadImage(data, filename, callback) {
 //                    console.log('图片转化超时！', e);
                     callback({
                         'success': false,
-                        'message': '图片转化超时，返回cos_url',
+                        'message': 'Image conversion timeout, return cos_url',
                         'cos_url': 'http://bed-1254016670.cos.ap-guangzhou.myqcloud.com/imgs/' + filename
                     });
                     return;
@@ -595,7 +614,7 @@ function uploadImage(data, filename, callback) {
                 setTimeout(wait, 1000);
             });
         };
-        mdui.snackbar("上传完毕，等待图片转化...");
+        mdui.snackbar("Upload completed, waiting for image conversion...");
         console.log('upload ok! wait for processing...')
         setTimeout(wait, 10000);
     });
