@@ -1,5 +1,5 @@
 resize = function() {
-    $('.chat-frame').height($('html').height() - $('header').height() - 3);
+    $('.chat-frame').height($('html').height() - $('header').height() - 4);
   };
   window.onresize = resize;
   $(document).ready(resize);
@@ -145,14 +145,14 @@ function readfile(input, callback) {
 //        console.log(xmlDoc.xml);
         uploadImage(xmlDoc.xml, filename, callback);
     } else {   
-        alert('Error reading file');   
+        alert('读取文件错误');   
     }   
 }
 
 function figurebedUpload() {
     $('.btn-copy').hide();
     if (!$('#file').get(0).files[0]) {
-        mdui.snackbar('Please select a file first');
+        mdui.snackbar('请先选择文件');
         return;
     }
     $('#figurebed-result').empty();
@@ -169,7 +169,7 @@ function figurebedUpload() {
         }
         url = encodeURI(url);
         console.log(url);
-        $('#figurebed-result').append($('<a href="' + url + '" target="_blank">Image link</a>'));
+        $('#figurebed-result').append($('<a href="' + url + '" target="_blank">图像链接</a>'));
         var tmpText = $('<div class="mdui-textfield"><textarea id="bed-result" class="mdui-textfield-input" type="text" autocomplete="off" autofocus=""></textarea></div>');
         $('.mdui-textfield-input', tmpText).val('![img](' + url + ')');
         $('#figurebed-result').append(tmpText);
@@ -181,10 +181,10 @@ function figurebedUpload() {
 $(document).ready(function(){  
     var clipboard = new ClipboardJS('.btn-copy');
     clipboard.on('success', function(e) {
-        mdui.snackbar('Copy success');
+        mdui.snackbar('复制成功');
     });
     clipboard.on('error', function(e) {
-        mdui.snackbar('Copy failue');
+        mdui.snackbar('复制失败');
     });
 });
   
